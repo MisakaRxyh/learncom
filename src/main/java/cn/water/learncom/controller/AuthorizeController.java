@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 @Controller
 public class AuthorizeController {
@@ -21,7 +22,7 @@ public class AuthorizeController {
         accessTokenDTO.setCode(code);
         accessTokenDTO.setRedirect_uri("http://localhost:8887/callback");
         accessTokenDTO.setClient_id("948161471acd2ac79b1a");
-        accessTokenDTO.setClient_secret("a15df9c1f8c45300106103d8ee8e5c830b07bf29");
+        accessTokenDTO.setClient_secret("b5c3d2d8ee18485e0e935088d51c1648a6659ca7");
         accessTokenDTO.setState(state);
         String accessToken = githubProvider.getAccessToken(accessTokenDTO);
         GithubUser user = githubProvider.getUser(accessToken);
