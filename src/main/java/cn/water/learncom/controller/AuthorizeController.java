@@ -12,7 +12,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.util.UUID;
 
 @Controller
@@ -34,15 +36,13 @@ public class AuthorizeController {
     @GetMapping("/callback")
     public String callback(@RequestParam(name = "code") String code,
                            @RequestParam(name = "state") String state,
-                           HttpServletRequest request) {
+                           HttpServletRequest request,
+                           HttpServletResponse response) {
         AccessTokenDTO accessTokenDTO = new AccessTokenDTO();
         accessTokenDTO.setCode(code);
         accessTokenDTO.setRedirect_uri(redirect_Uri);
         accessTokenDTO.setClient_id(client_Id);
         accessTokenDTO.setClient_secret(client_Secret);
-//        accessTokenDTO.setRedirect_uri("http://localhost:8887/callback");
-//        accessTokenDTO.setClient_id("948161471acd2ac79b1a");
-//        accessTokenDTO.setClient_secret("b5c3d2d8ee18485e0e935088d51c1648a6659ca7");
         accessTokenDTO.setState(state);
         String accessToken = githubProvider.getAccessToken(accessTokenDTO);
         GithubUser githubUser = githubProvider.getUser(accessToken);
@@ -51,17 +51,19 @@ public class AuthorizeController {
             System.out.println(githubUser.getName());
             User user = new User();
             user.setAccountId(String.valueOf(githubUser.getId()));
-            user.setToken(UUID.randomUUID().toString());
+            String token = UUID.randomUUID().toString();
+            user.setToken(token);
             user.setName(githubUser.getName());
             user.setGmtCreate(System.currentTimeMillis());
             user.setGmtModified(user.getGmtCreate());
             userMapper.insert(user);
+            response.addCookie(new Cookie("token", token));
             request.getSession().setAttribute("user",user);
-            return "redirect:index";
+            return "redirect:/";
         }
         else {
             //登录失败，重新登录
-            return "redirect:index";
         }
+        return "redirect:/";
     }
 }
